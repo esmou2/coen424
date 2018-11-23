@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, json
 
 main = Blueprint('main', __name__)
 from engine import RecommendationEngine
@@ -12,8 +12,19 @@ from flask import Flask
 
 
 @main.route("/", methods=["GET"])
-def top_ratings():
+def test():
     return "hey"
+
+
+@main.route("/", methods=["POST"])
+def send_recommendation():
+    x = {
+        "name": "John",
+        "age": 30,
+        "city": "New York"
+    }
+
+    return json.dumps(x)
 
 
 def create_app(spark_context):
