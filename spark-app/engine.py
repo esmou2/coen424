@@ -19,7 +19,7 @@ class RecommendationEngine:
     def __init__(self, ss):
         self.ss = ss
         df = ss.read.format("com.mongodb.spark.sql.DefaultSource").load()
-        self.labeled_data = df.select("state", "main_category", "category", "duration", "usd_goal_real")
+        self.labeled_data = df.select("state", "main_category", "duration", "usd_goal_real")
         predict_data, test_data, train_data = self._split_data()
         pipeline_rf = self._create_pipeline()
         self.model_rf = pipeline_rf.fit(train_data)
@@ -38,13 +38,13 @@ class RecommendationEngine:
         string_indexer_main_category = StringIndexer(inputCol="main_category", outputCol="main_category_IX")
         string_indexer_category = StringIndexer(inputCol="category", outputCol="category_IX")
         vector_assembler_features = VectorAssembler(
-            inputCols=["main_category_IX", "category_IX", "duration", "usd_goal_real"],
+            inputCols=["main_category_IX", "duration", "usd_goal_real"],
             outputCol="features")
         rf = RandomForestClassifier(labelCol="label", featuresCol="features")
         label_converter = IndexToString(inputCol="prediction", outputCol="predictedLabel",
                                         labels=string_indexer_label.labels)
         pipeline_rf = Pipeline(
-            stages=[string_indexer_label, string_indexer_main_category, string_indexer_category,
+            stages=[string_indexer_label, string_indexer_main_category,
                     vector_assembler_features, rf, label_converter])
         return pipeline_rf
 
