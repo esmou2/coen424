@@ -1,37 +1,22 @@
-from flask import Blueprint, json
+from flask import Flask, request, json
 
-main = Blueprint('main', __name__)
 from engine import RecommendationEngine
 
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-from flask import Flask
+app = Flask(__name__)
 
 
-@main.route("/", methods=["GET"])
+@app.route("/", methods=["GET"])
 def test():
     return "hey"
 
 
-@main.route("/", methods=["POST"])
+@app.route("/", methods=["POST"])
 def send_recommendation():
-    x = {
-        "name": "John",
-        "age": 30,
-        "city": "New York"
-    }
-
-    return json.dumps(x)
+    return json.dumps(recommendation_engine.count())
 
 
-def create_app(spark_context):
+def create_app(spark_session):
     global recommendation_engine
 
-    recommendation_engine = RecommendationEngine(spark_context)
-
-    app = Flask(__name__)
-    app.register_blueprint(main)
+    recommendation_engine = RecommendationEngine(spark_session)
     return app

@@ -1,11 +1,9 @@
-import logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-
 class RecommendationEngine:
 
-    def __init__(self, sc):
+    def count(self):
+        return self.df.count()
 
-        logger.info("Starting up the Recommendation Engine: ")
-        self.sc = sc
+    def __init__(self, ss):
+        self.ss = ss
+        self.df = ss.read.format("com.mongodb.spark.sql.DefaultSource").load()
+        self.df.printSchema()

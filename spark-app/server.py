@@ -1,35 +1,19 @@
-import time, sys, cherrypy, os
-from paste.translogger import TransLogger
+from pyspark.sql import SparkSession
+
 from app import create_app
-from pyspark import SparkContext, SparkConf
 
 
-def init_spark_context():
-    # load spark context
-    conf = SparkConf().setAppName("Recommendation app")
-    conf.setMaster("spark://ip-172-31-8-250.ca-central-1.compute.internal:7077")
-    sc = SparkContext(conf=conf, pyFiles=['engine.py', 'app.py'])
-
-    return sc
-
-
-def run_server(app):
-    app_logged = TransLogger(app)
-
-    cherrypy.tree.graft(app_logged, '/')
-
-    cherrypy.config.update({
-        'engine.autoreload.on': True,
-        'log.screen': True,
-        'server.socket_port': 5432,
-        'server.socket_host': '0.0.0.0'
-    })
-
-    cherrypy.engine.start()
-    cherrypy.engine.block()
+def init_spark_session():
+    spark = SparkSession \
+        .builder \
+        .appName("myApp") \
+        .getOrCreate()
+    spark.sparkContext.addPyFile('engine.py')
+    spark.sparkContext.addPyFile('app.py')
+    return spark
 
 
 if __name__ == "__main__":
-    sc = init_spark_context()
-    app = create_app(sc)
-    run_server(app)
+    ss = init_spark_session()
+    app = create_app(ss)
+    app.run(host="0.0.0.0", port="3000")
