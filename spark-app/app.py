@@ -12,7 +12,13 @@ def test():
 
 @app.route("/", methods=["POST"])
 def send_recommendation():
-    return json.dumps(recommendation_engine.count())
+    date = request.get_json()
+    category = date["category"]
+    main_category = date["main_category"]
+    duration = date["duration"]
+    usd_goal_real = date["usd_goal_real"]
+
+    return json.dumps(recommendation_engine.get_accuracy(request.data))
 
 
 def create_app(spark_session):
