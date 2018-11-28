@@ -19,7 +19,7 @@ class RecommendationEngine:
     def __init__(self, ss):
         self.ss = ss
         df = ss.read.format("com.mongodb.spark.sql.DefaultSource").load()
-        self.labeled_data = df.select("state", "main_category", "duration", "usd_goal_real")
+        self.labeled_data = df.select("state", "main_category", "category", "duration", "usd_goal_real")
 
         predict_data, test_data, train_data = self._split_data()
         pipeline_rf = self._create_pipeline()
