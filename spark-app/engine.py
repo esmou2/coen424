@@ -14,8 +14,6 @@ class RecommendationEngine:
         new_data = self.ss.read.json(json_obj)
         predictions = self.model_rf.transform(new_data)
         result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()
-        print("Accuracy = %g" % self.accuracy)
-
         return result
 
     def __init__(self, ss):
@@ -38,10 +36,10 @@ class RecommendationEngine:
 
     def _create_pipeline(self):
         string_indexer_label = StringIndexer(inputCol="state", outputCol="label").fit(self.labeled_data)
-        string_indexer_main_category = StringIndexer(inputCol="main_category", outputCol="main_category")
+        string_indexer_main_category = StringIndexer(inputCol="main_category", outputCol="main_category_IX")
         # string_indexer_category = StringIndexer(inputCol="category", outputCol="category_IX")
         vector_assembler_features = VectorAssembler(
-            inputCols=["main_category", "duration", "usd_goal_real"],
+            inputCols=["main_category_IX", "duration", "usd_goal_real"],
             outputCol="features")
         rf = RandomForestClassifier(labelCol="label", featuresCol="features")
         label_converter = IndexToString(inputCol="prediction", outputCol="predictedLabel",
