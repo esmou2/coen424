@@ -21,18 +21,23 @@ class RecommendationEngine:
         df = ss.read.format("com.mongodb.spark.sql.DefaultSource").load()
         self.labeled_data = df.select("state", "main_category", "duration", "usd_goal_real")
 
+        self.labeled_data.groupby("state").count().show()
+        self.labeled_data.groupby("main_category").count().show()
+
         predict_data, test_data, train_data = self._split_data()
         pipeline_rf = self._create_pipeline()
         self.model_rf = pipeline_rf.fit(train_data)
+
+        # self._test_classifier(test_data)
+
+    def _test_classifier(self, test_data):
         predictions = self.model_rf.transform(test_data)
+        predictions.shw(10)
         evaluator_rf = MulticlassClassificationEvaluator(labelCol="label", predictionCol="prediction",
                                                          metricName="accuracy")
-        self.accuracy = evaluator_rf.evaluate(predictions)
-
-        print("Accuracy = %g" % self.accuracy)
-        print("Test Error = %g" % (1.0 - self.accuracy))
-        predictions = self.model_rf.transform(predict_data)
-        predictions.show(10)
+        accuracy = evaluator_rf.evaluate(predictions)
+        print("Accuracy = %g" % accuracy)
+        print("Test Error = %g" % (1.0 - accuracy))
 
     def _create_pipeline(self):
         string_indexer_label = StringIndexer(inputCol="state", outputCol="label").fit(self.labeled_data)
