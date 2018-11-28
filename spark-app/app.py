@@ -14,9 +14,9 @@ def test():
 
 @app.route("/", methods=["POST"])
 def send_recommendation():
-    if request.data.get_json():
-        return json.dumps(recommendation_engine.get_prediction(request.get_json()))
-    return json.dumps({"error": "bad data format"}), 500
+    # if request.data.get_json():
+    return json.dumps(recommendation_engine.get_prediction(request.get_json()))
+    # return json.dumps({"error": "bad data format"}), 500
 
 
 def create_app(spark_session):
