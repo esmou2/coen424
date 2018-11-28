@@ -17,7 +17,7 @@ def send_recommendation():
     print("TEST   ", request)
     print("TEST   ", request.get_json())
     print("TEST   ", request.data)
-    if request.data.get_json():
+    if request.get_json():
         return json.dumps(recommendation_engine.get_prediction(request.get_json()))
     return json.dumps({"error": "bad data format"}), 500
 
