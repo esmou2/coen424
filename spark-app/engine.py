@@ -10,7 +10,6 @@ class RecommendationEngine:
         return self.df.count()
 
     def get_prediction(self, j):
-        print (j)
         json_obj = self.ss.sparkContext.parallelize([json.dumps(j)])
         new_data = self.ss.read.json(json_obj)
         predictions = self.model_rf.transform(new_data)
