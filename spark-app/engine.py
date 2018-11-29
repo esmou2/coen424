@@ -16,6 +16,7 @@ class RecommendationEngine:
         result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()
         self.state_count.show()
         self.main_category_count.show()
+        self.main_category_count_state.show()
         return result
 
     def __init__(self, ss):
@@ -29,6 +30,7 @@ class RecommendationEngine:
 
         self.state_count = self.labeled_data.groupby("state").count()
         self.main_category_count = self.labeled_data.groupby("main_category").count()
+        self.main_category_count_state = self.labeled_data.groupby(["main_category", "state"]).count()
 
     def _test_classifier(self, test_data):
         predictions = self.model_rf.transform(test_data)
