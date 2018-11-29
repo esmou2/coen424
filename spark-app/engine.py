@@ -23,7 +23,7 @@ class RecommendationEngine:
             self.main_category_count["main_category"].like(category)).collect()
         m_cat_count_state = self.main_category_count_state.filter(
             self.main_category_count_state["main_category"].like(category)).collect()
-        m_cat_sum_goals = self.self.main_category_sum_goals.filter(
+        m_cat_sum_goals = self.main_category_sum_goals.filter(
             self.main_category_count_state["main_category"].like(category)).collect()
 
         return state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals
