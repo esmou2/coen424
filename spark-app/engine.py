@@ -24,11 +24,11 @@ class RecommendationEngine:
         data["avg_goal_usd"] = m_cat_sum_goals[0][1] / m_cat_count[0][1]
 
         if "failed" in state_count[0]:
-            data["per_failed_project"] = (state_count[0][1] * 100) / m_cat_count[0][1]
-            data["per_successful_project"] = (state_count[1][1] * 100) / m_cat_count[0][1]
+            data["per_failed_project"] = (state_count[0][2] * 100) / m_cat_count[0][1]
+            data["per_successful_project"] = (state_count[1][2] * 100) / m_cat_count[0][1]
         else:
-            data["per_failed_project_in_cat"] = (m_cat_count_state[1][1] * 100) / m_cat_count[0][1]
-            data["per_successful_project_in_cat"] = (m_cat_count_state[0][1] * 100) / m_cat_count[0][1]
+            data["per_failed_project_in_cat"] = (m_cat_count_state[1][2] * 100) / m_cat_count[0][1]
+            data["per_successful_project_in_cat"] = (m_cat_count_state[0][2] * 100) / m_cat_count[0][1]
 
         return data
 
