@@ -8,7 +8,7 @@ class RecommendationEngine:
 
     def get_results(self, j):
         predictions = self._get_prediction(j)
-        result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()
+        result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()[0].get("prediction")
         m_cat_count, m_cat_count_state, m_cat_sum_goals = self._get_metrics(j.get("category"))
         return result, self._extract_metrics(m_cat_count, m_cat_count_state, m_cat_sum_goals)
 
