@@ -16,7 +16,9 @@ def test():
 def send_recommendation():
     received_data = request.get_json()
     if received_data and set(received_data.keys()) == {"category", "main_category", "duration", "usd_goal_real"}:
-        return json.dumps(recommendation_engine.get_prediction(received_data))
+        res = recommendation_engine.get_prediction(received_data)
+
+        return json.dumps(res)
     return json.dumps({"error": "bad data format"}), 400
 
 
