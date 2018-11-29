@@ -59,7 +59,7 @@ class RecommendationEngine:
         predict_data, test_data, train_data = self._split_data()
         pipeline_rf = self._create_pipeline()
         self.model_rf = pipeline_rf.fit(train_data)
-        self._test_classifier(test_data)
+        # self._test_classifier(test_data)
 
         self.main_category_count = self.labeled_data.groupby("main_category").count()
         self.main_category_count_state = self.labeled_data.groupby(["main_category", "state"]).count()
