@@ -16,8 +16,8 @@ class RecommendationEngine:
         result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()
 
         print(self.state_count.toJSON().first())
-        print(self.main_category_count.show().toJSON().first())
-        print(self.main_category_count_state.show().toJSON().first())
+        print(self.main_category_count.toJSON().first())
+        print(self.main_category_count_state.toJSON().first())
         return result
 
     def __init__(self, ss):
