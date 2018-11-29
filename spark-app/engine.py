@@ -31,7 +31,7 @@ class RecommendationEngine:
 
     def _test_classifier(self, test_data):
         predictions = self.model_rf.transform(test_data)
-        predictions.shw(10)
+        predictions.show(10)
         evaluator_rf = MulticlassClassificationEvaluator(labelCol="label", predictionCol="prediction",
                                                          metricName="accuracy")
         accuracy = evaluator_rf.evaluate(predictions)
