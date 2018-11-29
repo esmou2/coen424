@@ -13,7 +13,27 @@ class RecommendationEngine:
         predictions = self._get_prediction(j)
         result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()
         state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals = self._get_metrics(j.get("category"))
-        return result, state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals
+        return result, self._extract_metrics(state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals)
+
+    def _extract_metrics(self, state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals):
+        data = {}
+        if "failed" in state_count[0]:
+            data["per_failed_project"] = (state_count[0][1] * 100) / self.count()
+            data["per_successful_project"] = (state_count[1][1] * 100) / self.count()
+        else:
+            data["per_failed_project"] = (state_count[1][1] * 100) / self.count()
+            data["per_successful_project"] = (state_count[0][1] * 100) / self.count()
+        data["per_projects_in_cat"] = (m_cat_count[0][1] * 100) / self.count()
+        data["avg_goal_usd"] = m_cat_sum_goals[0][1] / m_cat_count[0][1]
+
+        if "failed" in state_count[0]:
+            data["per_failed_project"] = (state_count[0][1] * 100) / m_cat_count[0][1]
+            data["per_successful_project"] = (state_count[1][1] * 100) / m_cat_count[0][1]
+        else:
+            data["per_failed_project_in_cat"] = (m_cat_count_state[1][1] * 100) / m_cat_count[0][1]
+            data["per_successful_project_in_cat"] = (m_cat_count_state[0][1] * 100) / m_cat_count[0][1]
+
+        return data
 
     def _get_prediction(self, j):
         json_obj = self.ss.sparkContext.parallelize([json.dumps(j)])
