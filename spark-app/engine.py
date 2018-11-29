@@ -20,10 +20,10 @@ class RecommendationEngine:
     def _get_metrics(self, category):
         state_count = self.state_count.collect(),
         m_cat_count = self.main_category_count.select(self.main_category_count.main_category.like(category),
-                                                      "count").collect(),
+                                                      "count", "main_category").collect(),
         m_cat_count_state = self.main_category_count_state.select(
             self.main_category_count_state.main_category.like(category),
-            "count").collect()
+            "count", "main_category", "state").collect()
 
         return state_count, m_cat_count, m_cat_count_state
 
