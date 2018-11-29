@@ -15,6 +15,9 @@ def test():
 @app.route("/", methods=["POST"])
 @cross_origin(support_credentioals=True)
 def send_recommendation():
+    print(request)
+    print(request.get_json())
+    print(request.data)
     received_data = request.get_json()
     # if received_data and set(received_data.keys()) == {"category", "main_category", "duration", "usd_goal_real"}:
     prediction, metrics = recommendation_engine.get_results(received_data)
