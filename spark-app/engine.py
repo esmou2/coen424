@@ -15,7 +15,8 @@ class RecommendationEngine:
     def _extract_metrics(self, m_cat_count, m_cat_count_state, m_cat_sum_goals):
         data = {"per_failed_project": self.per_failed_project, "per_successful_project": self.per_successful_project,
                 "per_projects_in_cat": (m_cat_count[0][1] * 100) / self.count,
-                "avg_goal_usd": m_cat_sum_goals[0][1] / m_cat_count[0][1]}
+                "avg_goal_usd": m_cat_sum_goals[0][1] / m_cat_count[0][1],
+                "acc": self.accuracy}
 
         if "failed" in m_cat_count_state[0]:
             data["per_failed_project"] = (m_cat_count_state[0][2] * 100) / m_cat_count[0][1]
@@ -58,7 +59,7 @@ class RecommendationEngine:
         predict_data, test_data, train_data = self._split_data()
         pipeline_rf = self._create_pipeline()
         self.model_rf = pipeline_rf.fit(train_data)
-        # self._test_classifier(test_data)
+        self._test_classifier(test_data)
 
         self.main_category_count = self.labeled_data.groupby("main_category").count()
         self.main_category_count_state = self.labeled_data.groupby(["main_category", "state"]).count()
@@ -69,9 +70,7 @@ class RecommendationEngine:
         predictions.show(10)
         evaluator_rf = MulticlassClassificationEvaluator(labelCol="label", predictionCol="prediction",
                                                          metricName="accuracy")
-        accuracy = evaluator_rf.evaluate(predictions)
-        print("Accuracy = %g" % accuracy)
-        print("Test Error = %g" % (1.0 - accuracy))
+        self.accuracy = evaluator_rf.evaluate(predictions)
 
     def _create_pipeline(self):
         string_indexer_label = StringIndexer(inputCol="state", outputCol="label").fit(self.labeled_data)
