@@ -9,13 +9,17 @@ class RecommendationEngine:
     def count(self):
         return self.df.count()
 
-    def get_prediction(self, j):
+    def get_results(self, j):
+        predictions = self._get_prediction(j)
+        result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()
+        state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals = self._get_metrics(j.get("category"))
+        return result, state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals
+
+    def _get_prediction(self, j):
         json_obj = self.ss.sparkContext.parallelize([json.dumps(j)])
         new_data = self.ss.read.json(json_obj)
         predictions = self.model_rf.transform(new_data)
-        result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()
-
-        return result, self._get_metrics(j.get("category"))
+        return predictions
 
     def _get_metrics(self, category):
         state_count = self.state_count.collect()
