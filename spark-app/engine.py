@@ -6,9 +6,6 @@ from pyspark.ml.feature import StringIndexer, VectorAssembler, IndexToString
 
 class RecommendationEngine:
 
-    def count(self):
-        return self.df.count()
-
     def get_results(self, j):
         predictions = self._get_prediction(j)
         result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()
@@ -18,12 +15,12 @@ class RecommendationEngine:
     def _extract_metrics(self, state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals):
         data = {}
         if "failed" in state_count[0]:
-            data["per_failed_project"] = (state_count[0][1] * 100) / self.count()
-            data["per_successful_project"] = (state_count[1][1] * 100) / self.count()
+            data["per_failed_project"] = (state_count[0][1] * 100) / self.count
+            data["per_successful_project"] = (state_count[1][1] * 100) / self.count
         else:
-            data["per_failed_project"] = (state_count[1][1] * 100) / self.count()
-            data["per_successful_project"] = (state_count[0][1] * 100) / self.count()
-        data["per_projects_in_cat"] = (m_cat_count[0][1] * 100) / self.count()
+            data["per_failed_project"] = (state_count[1][1] * 100) / self.count
+            data["per_successful_project"] = (state_count[0][1] * 100) / self.count
+        data["per_projects_in_cat"] = (m_cat_count[0][1] * 100) / self.count
         data["avg_goal_usd"] = m_cat_sum_goals[0][1] / m_cat_count[0][1]
 
         if "failed" in state_count[0]:
@@ -56,10 +53,11 @@ class RecommendationEngine:
         self.ss = ss
         df = ss.read.format("com.mongodb.spark.sql.DefaultSource").load()
         self.labeled_data = df.select("state", "main_category", "duration", "usd_goal_real")
+        self.count = self.labeled_data.count()
         predict_data, test_data, train_data = self._split_data()
         pipeline_rf = self._create_pipeline()
         self.model_rf = pipeline_rf.fit(train_data)
-        self._test_classifier(test_data)
+        # self._test_classifier(test_data)
 
         self.state_count = self.labeled_data.groupby("state").count()
         self.main_category_count = self.labeled_data.groupby("main_category").count()
