@@ -18,12 +18,15 @@ class RecommendationEngine:
         return result, self._get_metrics(j.get("category"))
 
     def _get_metrics(self, category):
-        state_count = self.state_count.collect(),
-        m_cat_count = self.main_category_count.filter(self.main_category_count["main_category"].like(category)).collect(),
+        state_count = self.state_count.collect()
+        m_cat_count = self.main_category_count.filter(
+            self.main_category_count["main_category"].like(category)).collect()
         m_cat_count_state = self.main_category_count_state.filter(
-            self.main_category_count_state["main_category"].like(category)).collect(),
+            self.main_category_count_state["main_category"].like(category)).collect()
+        m_cat_sum_goals = self.self.main_category_sum_goals.filter(
+            self.main_category_count_state["main_category"].like(category)).collect()
 
-        return state_count, m_cat_count, m_cat_count_state
+        return state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals
 
     def __init__(self, ss):
         self.ss = ss
@@ -37,6 +40,7 @@ class RecommendationEngine:
         self.state_count = self.labeled_data.groupby("state").count()
         self.main_category_count = self.labeled_data.groupby("main_category").count()
         self.main_category_count_state = self.labeled_data.groupby(["main_category", "state"]).count()
+        self.main_category_sum_goals = self.labeled_data.groupby(["main_category"]).sum("usd_goal_real")
 
     def _test_classifier(self, test_data):
         predictions = self.model_rf.transform(test_data)
