@@ -13,19 +13,13 @@ class RecommendationEngine:
         return result, self._extract_metrics(state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals)
 
     def _extract_metrics(self, state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals):
-        data = {}
-        if "failed" in state_count[0]:
-            data["per_failed_project"] = (state_count[0][1] * 100) / self.count
-            data["per_successful_project"] = (state_count[1][1] * 100) / self.count
-        else:
-            data["per_failed_project"] = (state_count[1][1] * 100) / self.count
-            data["per_successful_project"] = (state_count[0][1] * 100) / self.count
-        data["per_projects_in_cat"] = (m_cat_count[0][1] * 100) / self.count
-        data["avg_goal_usd"] = m_cat_sum_goals[0][1] / m_cat_count[0][1]
+        data = {"per_failed_project": self.per_failed_project, "per_successful_project": self.per_successful_project,
+                "per_projects_in_cat": (m_cat_count[0][1] * 100) / self.count,
+                "avg_goal_usd": m_cat_sum_goals[0][1] / m_cat_count[0][1]}
 
-        if "failed" in state_count[0]:
-            data["per_failed_project"] = (state_count[0][2] * 100) / m_cat_count[0][1]
-            data["per_successful_project"] = (state_count[1][2] * 100) / m_cat_count[0][1]
+        if "failed" in m_cat_count_state[0]:
+            data["per_failed_project"] = (m_cat_count_state[0][2] * 100) / m_cat_count[0][1]
+            data["per_successful_project"] = (m_cat_count_state[1][2] * 100) / m_cat_count[0][1]
         else:
             data["per_failed_project_in_cat"] = (m_cat_count_state[1][2] * 100) / m_cat_count[0][1]
             data["per_successful_project_in_cat"] = (m_cat_count_state[0][2] * 100) / m_cat_count[0][1]
@@ -39,7 +33,6 @@ class RecommendationEngine:
         return predictions
 
     def _get_metrics(self, category):
-        state_count = self.state_count.collect()
         m_cat_count = self.main_category_count.filter(
             self.main_category_count["main_category"].like(category)).collect()
         m_cat_count_state = self.main_category_count_state.filter(
@@ -47,19 +40,26 @@ class RecommendationEngine:
         m_cat_sum_goals = self.main_category_sum_goals.filter(
             self.main_category_count_state["main_category"].like(category)).collect()
 
-        return state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals
+        return m_cat_count, m_cat_count_state, m_cat_sum_goals
 
     def __init__(self, ss):
         self.ss = ss
         df = ss.read.format("com.mongodb.spark.sql.DefaultSource").load()
         self.labeled_data = df.select("state", "main_category", "duration", "usd_goal_real")
         self.count = self.labeled_data.count()
+        state_count = self.labeled_data.groupby("state").count().collect()
+        if "failed" in state_count[0]:
+            self.per_failed_project = (state_count[0][1] * 100) / self.count
+            self.per_successful_project = (state_count[1][1] * 100) / self.count
+        else:
+            self.per_failed_project = (state_count[1][1] * 100) / self.count
+            self.per_successful_project = (state_count[0][1] * 100) / self.count
+
         predict_data, test_data, train_data = self._split_data()
         pipeline_rf = self._create_pipeline()
         self.model_rf = pipeline_rf.fit(train_data)
         # self._test_classifier(test_data)
 
-        self.state_count = self.labeled_data.groupby("state").count()
         self.main_category_count = self.labeled_data.groupby("main_category").count()
         self.main_category_count_state = self.labeled_data.groupby(["main_category", "state"]).count()
         self.main_category_sum_goals = self.labeled_data.groupby(["main_category"]).sum("usd_goal_real")
