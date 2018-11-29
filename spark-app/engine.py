@@ -9,10 +9,10 @@ class RecommendationEngine:
     def get_results(self, j):
         predictions = self._get_prediction(j)
         result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()
-        state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals = self._get_metrics(j.get("category"))
-        return result, self._extract_metrics(state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals)
+        m_cat_count, m_cat_count_state, m_cat_sum_goals = self._get_metrics(j.get("category"))
+        return result, self._extract_metrics(m_cat_count, m_cat_count_state, m_cat_sum_goals)
 
-    def _extract_metrics(self, state_count, m_cat_count, m_cat_count_state, m_cat_sum_goals):
+    def _extract_metrics(self, m_cat_count, m_cat_count_state, m_cat_sum_goals):
         data = {"per_failed_project": self.per_failed_project, "per_successful_project": self.per_successful_project,
                 "per_projects_in_cat": (m_cat_count[0][1] * 100) / self.count,
                 "avg_goal_usd": m_cat_sum_goals[0][1] / m_cat_count[0][1]}
