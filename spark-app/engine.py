@@ -14,9 +14,10 @@ class RecommendationEngine:
         new_data = self.ss.read.json(json_obj)
         predictions = self.model_rf.transform(new_data)
         result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()
-        self.state_count.show()
-        self.main_category_count.show()
-        self.main_category_count_state.show()
+
+        print(self.state_count.toJSON().first())
+        print(self.main_category_count.show().toJSON().first())
+        print(self.main_category_count_state.show().toJSON().first())
         return result
 
     def __init__(self, ss):
