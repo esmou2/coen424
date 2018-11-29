@@ -16,11 +16,11 @@ def test():
 @cross_origin(support_credentioals=True)
 def send_recommendation():
     received_data = request.get_json()
-    if received_data and set(received_data.keys()) == {"category", "main_category", "duration", "usd_goal_real"}:
-        prediction, metrics = recommendation_engine.get_results(received_data)
-        data = {'prediction': prediction, 'metrics': metrics}
-        return json.dumps(data)
-    return json.dumps({"error": "bad data format"}), 400
+    # if received_data and set(received_data.keys()) == {"category", "main_category", "duration", "usd_goal_real"}:
+    prediction, metrics = recommendation_engine.get_results(received_data)
+    data = {'prediction': prediction, 'metrics': metrics}
+    return json.dumps(data)
+    # return json.dumps({"error": "bad data format"}), 400
 
 
 def create_app(spark_session):
