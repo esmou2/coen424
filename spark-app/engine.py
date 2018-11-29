@@ -2,7 +2,6 @@ from pyspark.ml import Pipeline
 from pyspark.ml.classification import RandomForestClassifier, json
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from pyspark.ml.feature import StringIndexer, VectorAssembler, IndexToString
-from pyspark.sql.functions import when
 
 
 class RecommendationEngine:
@@ -20,11 +19,9 @@ class RecommendationEngine:
 
     def _get_metrics(self, category):
         state_count = self.state_count.collect(),
-        m_cat_count = self.main_category_count.select(when(self.main_category_count.main_category.like(category)),
-                                                      "count", "main_category").collect(),
-        m_cat_count_state = self.main_category_count_state.select(
-            when(self.main_category_count_state.main_category.like(category)),
-            "count", "main_category", "state").collect()
+        m_cat_count = self.main_category_count.filter(self.main_category_count["category"].like(category)).collect(),
+        m_cat_count_state = self.main_category_count_state.filter(
+            self.main_category_count_state["category"].like(category)).collect(),
 
         return state_count, m_cat_count, m_cat_count_state
 
