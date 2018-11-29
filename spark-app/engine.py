@@ -14,9 +14,8 @@ class RecommendationEngine:
         new_data = self.ss.read.json(json_obj)
         predictions = self.model_rf.transform(new_data)
         result = predictions.rdd.map(lambda x: {"prediction": x.predictedLabel}).collect()
-        self.labeled_data.groupby("state").count().show()
-        self.labeled_data.groupby("main_category").count().show()
-
+        self.state_count.show()
+        self.main_category_count.show()
         return result
 
     def __init__(self, ss):
@@ -26,8 +25,10 @@ class RecommendationEngine:
         predict_data, test_data, train_data = self._split_data()
         pipeline_rf = self._create_pipeline()
         self.model_rf = pipeline_rf.fit(train_data)
-
         self._test_classifier(test_data)
+
+        self.state_count = self.labeled_data.groupby("state").count()
+        self.main_category_count = self.labeled_data.groupby("main_category").count()
 
     def _test_classifier(self, test_data):
         predictions = self.model_rf.transform(test_data)
