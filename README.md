@@ -1,3 +1,3 @@
 # coen424
 
-Recommendation System
+Recommendation app
